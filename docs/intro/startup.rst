@@ -1,11 +1,11 @@
-==========
-SCNの起動
-==========
+============
+Starting SCN
+============
 
-OpenFlowスイッチの起動
------------------------
+Starting OpenFlow Switch
+------------------------
 
-各OpenFlowスイッチ上で下記のコマンドを実行します。
+Run the following commands on each OpenFlow switch.
 
 ::
 
@@ -13,8 +13,7 @@ OpenFlowスイッチの起動
     $ sudo ./utilities/ovs-vsctl --no-wait init
     $ bsudo ./vswitchd/ovs-vswitchd --pidfile
 
-
-各OpenFlowスイッチ上で下記のコマンドを実行します。
+Run the following commands on each OpenFlow switch.
 
 ::
 
@@ -29,11 +28,11 @@ OpenFlowスイッチの起動
     $ sudo ./utilities/ovs-vsctl add-port ofs1 eth2.2752
     $ sudo ./utilities/ovs-ofctl mod-port ofs1 eth2.2752 no-flood
 
-    ※上記コマンド中の「ofs1」は、各OpenFlowスイッチノード毎に異なる名前を設定します。
+    ※”ofs1”in the above commands is to set a different name for each OpenFlow switch node.
 
 
 
-各OpenFlowスイッチ上で下記のコマンドを実行します。
+Run the following commands on each OpenFlow switch.
 
 
 ::
@@ -41,14 +40,14 @@ OpenFlowスイッチの起動
     $ sudo ./utilities/ovs-vsctl set-controller ofs1 tcp:172.18.210.255:6633
     $ sudo ./utilities/ovs-vsctl set bridge ofs1 other-config:datapath-id=0000000000000001
 
-    ※上記コマンド中の「ofs1」は、各OpenFlowスイッチノード毎に異なる名前を設定します。
+    ※”ofs1”in the above commands is to set a different name for each OpenFlow switch node.
 
 
 
-OpenFlowコントローラの起動
----------------------------
+Starting OpenFlow Controller
+----------------------------
 
-OpenFlowコントローラ上で下記のコマンドを実行します。
+Run the following commands on the OpenFlow Controller.
 
 ::
 
@@ -57,10 +56,10 @@ OpenFlowコントローラ上で下記のコマンドを実行します。
 
 
 
-SCNミドルウェアの起動
+Starting SCN Middleware
 ---------------------------
 
-サービスノード上で下記のコマンドを実行します。"10.0.1.1"のサービスノードの例を示します。
+Run the following commands on the service node. See the example of ”10.0.1.1”service node.
 
 ::
 
@@ -68,6 +67,6 @@ SCNミドルウェアの起動
     $ ~/.rvm/bin/ruby main.rb 10.0.1.1/24
 
 
-    ※10.0.1.1/24：自ノードのIPアドレス/サブネットマスク
+    ※10.0.1.1/24: IP address of its own node/subnet mask
 
 

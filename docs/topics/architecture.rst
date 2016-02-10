@@ -1,38 +1,38 @@
 ===============
-アーキテクチャ
+Architecture
 ===============
 
 .. _POX: http://www.noxrepo.org/pox/about-pox/
 
 
-ネットワーク構成
+Network Structure
 =================
-* SCN OpenFlow Driverは、プログラミング可能なネットワークとして、OpenFlowを利用します。
-* 各情報サービスが動作するサービスノードは、OpenFlowネットワークを介して接続されます。
-* OpenFlowスイッチはOpenFlowコントローラと接続し、各サービスノードは1つのOpenFlowスイッチと接続します。
-* SCN OpenFlow Driverは、サービス連携の定義に従い、各OpenFlowスイッチのフローテーブルにデータの転送ルールを設定します。
-* SCN OpenFlow Driverがネットワークの負荷状況に応じてフローを動的に切り替え、特定の経路にトラフィックが集中することを回避することで、
-  ネットワークリソースの利用を最適化することができます。
+* SCN OpenFlow Driver uses OpenFlow as a programmable network.
+* Service node on which each information service is running is connected via the OpenFlow network.
+* OpenFlow switch connects to OpenFlow controller. Each service node connects to one OpenFlow switch.
+* SCN OpenFlow Driver sets the data transfer rule on the flow table of each OpenFlow switch by following the definition of service cooperation.
+* SCN OpenFlow Driver switches a flow dynamically according to the load condition of the network, and avoids the concentration of traffic on a specific route.
+  In this way, it optimizes the utilization of network resources.
 
 .. image:: img/fig-architecture-1.png
       :width: 500px
       :align: center
 
 
-ソフトウェア構成
-=================
-* サービスノード上では、SCN Coreが動作し、その上で、SCNを利用するサービスプログラムが複数動作します。
-* OpenFlowスイッチとOpenFlowコントローラ上では、OpenFlowを実現するためにそれぞれ「Open vSwitch」と「 `POX`_ 」というソフトウェアを動作させます。
-* SCN OpenFlow Driverは、OpenFlowコントローラ上の `POX`_ プラグインとして動作させます。
+Software structure
+==================
+* On the service node, the SCN Core runs; on that, multiple service programs that use SCN run.
+* On the OpenFlow switch and OpenFlow controller, software called “Open vSwitch”and “POX” must be run to enable OpenFlow.
+* SCN OpenFlow Driver runs as the POX plug-in on the OpenFlow controller.
 
 .. image:: img/fig-architecture-2.png
       :width: 500px
       :align: center
 
 
-SCN OpenFlow Driverの構成
-==========================
-* SCN OpenFlow Driverは、OpenFlowコントローラ「 `POX`_ 」を拡張して実装しています。
+Structure of SCN OpenFlow Driver
+================================
+* SCN OpenFlow Driver is implemented by expanding OpenFlow controller “ `POX`_ ”.
 
 .. image:: img/fig-architecture-3.png
       :width: 200px
@@ -40,66 +40,65 @@ SCN OpenFlow Driverの構成
 
 POX
 ^^^^
-* フリーのOpenFlowコントローラです。
-* OpenFlowコントローラが持つ標準の機能
-  (OpenFlowスイッチの検出、Flowテーブルの書き換え、PacketInの受信、PacketOutの送信、OpenFlowスイッチから統計情報の取得など)
-  を提供します。
+* Free OpenFlow controller.
+* It provides the standard functions of OpenFlow controller
+  (such as detection of OpenFlow switch, rewriting Flow table, receiving PacketIn, sending PacketOut, and acquiring statistical information from the OpenFlow switch).
+
 
 
 SCN OpenFlow Driver
 ^^^^^^^^^^^^^^^^^^^^
-* SCN用に、 `POX`_ が持つクラスを継承したり `POX`_ のプラグインとして機能を追加しています。
-* 主に、以下のイベントドリブンで動作します。
+* For SCN, it inherits a class that POX has or adds functions as the POX plug-in.
+* Primarily, it runs as the following, event-driven.
 
-  * OpenFlowスイッチ接続
+  * OpenFlow switch connection
   * PacketIn
-  * SCN Coreからのメッセージ受信
-  * タイマーなど
+  * Receiving message from SCN Core
+  * Timer, etc.
 
 
-SCN OpenFlow Driverの機能
-==========================
+Function of SCN OpenFlow Driver
+===============================
 
-SCN Core通信機能
-^^^^^^^^^^^^^^^^^
-* SCN OpenFlow Driverは、SCN Coreとの間で以下のメッセージをやりとりします。
+SCN Core communication function
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* SCN OpenFlow Driver sends and receives the following messages with SCN Core.
 
-=============== ==================================================================================
-メッセージ種別  メッセージ内容
-=============== ==================================================================================
-INITIALIZE      SCN Coreの起動通知。SCN CoreのIPアドレス、及びポートが含まれます。
-CREATE_BI_PATH  パス生成通知。データの送信元および送信先のIPアドレス、通信のバンド幅が含まれます。
-UPDATE_PATH     通信バンド幅変更通知。変更後の通信のバンド幅が含まれます。
-DELETE_PATH     パス削除通知。削除対象のパスIDが含まれます。
-OPTIMIZE        通信経路の最適化実施通知。
-=============== ==================================================================================
+=============== ==================================================================================================================================================
+Message type    Message description
+=============== ==================================================================================================================================================
+INITIALIZE      Notification of initializing SCN Core. It contains the IP address and port of SCN Core.
+CREATE_BI_PATH  Notification of path creation. It contains the IP address of the data transmission source and destination and bandwidth of the communication.
+UPDATE_PATH     Notification of communication bandwidth update. It contains the communication bandwidth after the update.
+DELETE_PATH     Notification of path deletion. It contains the path IP of the deleted path.
+OPTIMIZE        Notification of performing optimization of communication route.
+=============== ==================================================================================================================================================
 
-* SCN CoreからSCN OpenFlow DriverへのINITIALIZE通知はUDP、それ以外のメッセージはTCPで通信します。
-
-
-サービスサーバ通知機能
-^^^^^^^^^^^^^^^^^^^^^^^
-* SCN上で動作するサービスの情報は1つのサービスサーバで管理し、SCN Coreがサービスを検索する際は
-  そのサーバに対して問い合わせます。SCN　OpenFlow Driverは、SCN CoreのINITIALIZEメッセージの
-  レスポンスで、そのサーバのIPアドレスを返します。
-
-パス管理機能
-^^^^^^^^^^^^^
-* SCN Coreから指示された「データ送信元IPアドレス」、「データ送信先IPアドレス」、「通信のバンド幅」を基に、
-  データ送信元ノードからデータ送信先ノードへの経路を計算します(通信経路は「ダイクストラ法」を使用します)。
-  そして、経路中のOpenFlowスイッチに対して、Flowテーブルの設定を行います。
-
-パス最適化機能
-^^^^^^^^^^^^^^^
-* 定期的にOpenFlowスイッチからネットワークの統計情報を取得し、データの通信経路の最適化を実施します。
-* ネットワークの統計情報の取得は、標準のOpenFlowの仕組みを使用します。
-* 最適化は、パス生成時と同様に「ダイクストラ法」にて通信経路を計算します。
-  計結果を基に、OpenFlowスイッチのFlowテーブルを設定し、通信経路を再設定します。
+* INITIALIZE notification from SCN Core to SCN OpenFlow Driver is communicated in UDP. Messages other than that are communicated in TCP.
 
 
-コンフィグ
-===========
-* `POX`_ の実行時に、以下のような内容を記述したiniファイルを指定することで、設定情報を入力することができます。
+Service Server Notification Function
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* One service server manages service information that runs on SCN.
+  When SCN Core searches a service, it inquires to the server.
+  SCN OpenFlow Driver sends back the IP address of the server in response to INITIALIZE message of SCN Core.
+
+Path Control Function
+^^^^^^^^^^^^^^^^^^^^^
+* Based on “Data transmission source IP address,” “Data transmission destination IP address,” and “Communication bandwidth,” it calculates the route from the data transmission source node to data transmission destination node (Dijkstra’s method is used for the communication route).
+  Furthermore, it sets a Flow table for the OpenFlow switch on the route.
+
+Path Optimization Function
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+* It acquires network statistical information periodically from OpenFlow switch, and performs optimization of the data communication route.
+* The acquisition of network statistical information is done by a standard OpenFlow structure.
+* The optimization calculates the communication route using Dijkstra’s method as same as the creation of path.
+  Based on the calculation result, it sets the Flow table of the OpenFlow switch and resets the communication route.
+
+
+Configuration
+=============
+* When running `POX`_ , the configuration information can be entered by specifying an ini file that includes the following description.
 
 ::
 
@@ -107,7 +106,7 @@ OPTIMIZE        通信経路の最適化実施通知。
     MONITOR_FLOW_PERIOD=10
     UNIT_OF_VALUE="bit"
 
-* 新規に開発したプラグインを追加する際は、iniファイルの以下に、追加したプラグインのファイル名(suffixを除いたもの)を記述してください。
+* For adding a newly developed plug-in, describe the file name (except suffix) of the added plug-in under the ini file.
 
 ::
 

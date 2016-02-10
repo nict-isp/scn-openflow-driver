@@ -1,27 +1,27 @@
-==============
-SCNの環境設定
-==============
+==========================
+SCN environmental settings
+==========================
 
-トポロジー例
-==============
-以下に示したトポロジの例を基に、SCNの動作環境について説明します。
+Example of topology
+===================
+Based on the example of topology shown below, it describes the SCN operating environment.
 
 .. image:: img/fig-setting-1.png
       :width: 800px
       :align: center
 
 
-OpenFlowネットワークは、データパケットが流れるデータフローと、コントロールパケットが流れるコントロールフローの2つのネットワークによって構成されます。
-データフローでは、通常のネットワークと同様に、サービスノード間で送受信するデータパケットが流れます。
-コントロールフローでは、OpenFlowコントローラとOpenFlowスイッチ間で、OpneFlow特有のメッセージパケット（Flow-ModやPacket-Inなど）が流れます。
+OpenFlow network consists of two networks of the data flow by which the data packet flows and the control flow by which the control packet flows.
+At the data flow, data packets that are sent and received between service nodes flow just as they do in a normal network. 
+At the control flow, OpenFlow specific message packets (such as Flow-Mod or Packet-In) flow between OpenFlow controller and OpenFlow switch.
 
-サービスノード
+Service node
 ===============
 
-ネットワークインタフェースの設定
+Settings for Network Interface
 ---------------------------------
-"10.0.1.1"のサービスノードの「/etc/network/interfaces」ファイルの設定を下記に示します。
-各サービスノードについて、本ファイルの内容をそれぞれのIPアドレスに合わせて編集します。
+The settings for ”/etc/network/interfaces” file of “10.0.1.1” service node are described below. 
+For each service node, edit the contents of this file to match the respective IP addresses.
 
 ::
 
@@ -38,22 +38,21 @@ OpenFlowネットワークは、データパケットが流れるデータフロ
         post-up ethtool -K $IFACE tso off gso off gro off
 
 
-interfacesファイルの編集後、下記のコマンドを実行します。
+Run the following commands after editing interface files.
 
 ::
 
     $ sudo /etc/init.d/networking restart
 
 
-
-OpenFlowスイッチノード
+OpenFlow switch node
 =======================
 
 
-Open vSwitchのインストール
+Install Open vSwitch
 ---------------------------
 
-下記のコマンドを実行します。
+Run the following commands
 
 ::
 
@@ -72,10 +71,9 @@ $ sudo mkdir -p /usr/local/etc/openvswitch /usr/local/var/run/openvswitch
 $ sudo ./ovsdb/ovsdb-tool create /usr/local/etc/openvswitch/conf.db vswitchd/vswitch.ovsschema
 
 
-ネットワークインタフェースの設定
+Settings for Network Interface
 ---------------------------------
-"172.18.210.254"のOpenFlowスイッチノードの「/etc/network/interfaces」ファイルの設定を下記に示します。
-各OpenFlowスイッチについて、本ファイルの内容をそれぞれのIPアドレスに合わせて編集します。
+The settings for “/etc/network/interfaces” file of OpenFlow switch node at “172.18.210.254” are described below. For each OpenFlow switch, edit the contents of this file to match the respective IP addresses.
 
 ::
 
@@ -130,10 +128,10 @@ $ sudo ./ovsdb/ovsdb-tool create /usr/local/etc/openvswitch/conf.db vswitchd/vsw
         post-up ethtool -K $IFACE tso off gso off gro off
 
 
-IPv6無効化の設定
------------------
+Settings for disabling IPv6
+----------------------------
 
-各OpenFlowスイッチの「etc/sysctl.conf」ファイルに、下記の設定を追加します。
+Add the following settings to “etc/sysctl.conf” file of each OpenFlow switch.
 
 ::
 
@@ -141,7 +139,7 @@ IPv6無効化の設定
     net.ipv6.conf.default.disable_ipv6 = 1
 
 
-下記のコマンドを実行します。
+Run the following command.
 
 ::
 
@@ -150,13 +148,13 @@ IPv6無効化の設定
 
 
 
-OpenFlowコントローラノード
+OpenFlow Controller Node
 ===========================
 
-ネットワークインタフェースの設定
+Settings for Network Interface
 ---------------------------------
 
-OpenFlowコントローラノードの「/etc/network/interfaces」を下記のように編集します。
+Edit “/etc/network/interfaces”of OpenFlow Controller Node as follows.
 
 ::
 
@@ -172,16 +170,16 @@ OpenFlowコントローラノードの「/etc/network/interfaces」を下記の�
             gateway 172.18.254.254
             post-up ethtool -K $IFACE tso off gso off gro off
 
-interfacesファイルの編集後、下記のコマンドを実行します。
+Run the following command, after editing interfaces files.
 
 ::
 
     $ sudo /etc/init.d/networking restart
 
-POX用設定ファイルの設定
-------------------------
+Settings for POX setting file
+-----------------------------
 
-「pox_sample.ini」のトポロジー定義を下記のように設定します。
+Set the topology definition of “pox_sample.ini” as follows.
 
 ::
 
