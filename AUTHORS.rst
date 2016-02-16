@@ -1,7 +1,6 @@
-SCN OpenFlow Driver は、NICTの情報利活用基盤研究室および多数の貢献者によって開発、維持されています。
+SCN OpenFlow Driver is developed and maintained by NICT ISP Laboratory and various contributors.
 
 Development Lead
 ````````````````
-
-- NICT 情報利活用基盤研究室
+- NICT ISP Laboratory
 
